@@ -96,14 +96,15 @@ export default {
       phone: yup
         .string()
         .matches(
-          /((09|03|07|08|05)+([0-9]{8})\b)/g,
-          "Số điện thoại không hợp lệ."
-        ),
+          /((09|03|07|08|05)+([0-9]{8})\b)/,
+          "Số điện thoại không đúng định dạng."
+        )
+        .max(15, "Số điện thoại tối đa 15 ký tự."),
+      favorite: yup.boolean(),
     });
+
     return {
-      // Chúng ta sẽ không muốn hiệu chỉnh props, nên tạo biến cục bộ
-      // ContactLocal để liên kết với các Input trên form
-      contactLocal: this.contact,
+      contactLocal: { ...this.contact },
       contactFormSchema,
     };
   },
@@ -112,22 +113,22 @@ export default {
       this.$emit("submit:contact", this.contactLocal);
     },
     deleteContact() {
-      this.$emit("delete:contact", this.contactLocal.id);
+      this.$emit("delete:contact", this.contactLocal);
     },
-    Cancel() {
-      const reply = window.confirm(
-        "You have unsaved changes! Do you want to leave ? "
-      );
-      if (!reply) {
-        // stay on the page if
-        // user clicks 'Cancel'
-        return false;
-      } else this.$router.push({ name: "contactbook" });
+  },
+  watch: {
+    contact: {
+      handler(newContact) {
+        this.contactLocal = { ...newContact };
+      },
+      deep: true,
     },
   },
 };
 </script>
 
 <style scoped>
-@import "@/assets/form.css";
+.error-feedback {
+  color: red;
+}
 </style>
